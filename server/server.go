@@ -447,11 +447,17 @@ func newServer(ctx context.Context, c Config) (*Server, error) {
 	}
 	r.NotFoundHandler = http.NotFoundHandler()
 
-	discoveryHandler, err := s.discoveryHandler(ctx)
+	oidcHandler, err := s.discoveryHandler(ctx, DiscoveryOIDC)
 	if err != nil {
 		return nil, err
 	}
-	handleWithCORS("/.well-known/openid-configuration", discoveryHandler)
+	handleWithCORS("/.well-known/openid-configuration", oidcHandler)
+
+	oauthHandler, err := s.discoveryHandler(ctx, DiscoveryOAuth2)
+	if err != nil {
+		return nil, err
+	}
+	handleWithCORS("/.well-known/oauth-authorization-server", oauthHandler)
 	// Handle the root path for the better user experience.
 	handleWithCORS("/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := fmt.Fprintf(w, `<!DOCTYPE html>
