@@ -34,25 +34,24 @@ const (
 func (s *Server) handlePublicKeys(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	// TODO(ericchiang): Cache this.
-	keys, err := s.storage.GetKeys(ctx)
+	keys, err := s.signer.ValidationKeys(ctx)
 	if err != nil {
 		s.logger.ErrorContext(r.Context(), "failed to get keys", "err", err)
 		s.renderError(r, w, http.StatusInternalServerError, "Internal server error.")
 		return
 	}
 
-	if keys.SigningKeyPub == nil {
+	if len(keys) == 0 {
 		s.logger.ErrorContext(r.Context(), "no public keys found.")
 		s.renderError(r, w, http.StatusInternalServerError, "Internal server error.")
 		return
 	}
 
 	jwks := jose.JSONWebKeySet{
-		Keys: make([]jose.JSONWebKey, len(keys.VerificationKeys)+1),
+		Keys: make([]jose.JSONWebKey, len(keys)),
 	}
-	jwks.Keys[0] = *keys.SigningKeyPub
-	for i, verificationKey := range keys.VerificationKeys {
-		jwks.Keys[i+1] = *verificationKey.PublicKey
+	for i, key := range keys {
+		jwks.Keys[i] = *key
 	}
 
 	data, err := json.MarshalIndent(jwks, "", "  ")
@@ -61,10 +60,10 @@ func (s *Server) handlePublicKeys(w http.ResponseWriter, r *http.Request) {
 		s.renderError(r, w, http.StatusInternalServerError, "Internal server error.")
 		return
 	}
-	maxAge := keys.NextRotation.Sub(s.now())
-	if maxAge < (time.Minute * 2) {
-		maxAge = time.Minute * 2
-	}
+
+	// We don't have NextRotation info from Signer interface easily,
+	// so we'll just set a reasonable default cache time.
+	maxAge := time.Minute * 10
 
 	w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d, must-revalidate", int(maxAge.Seconds())))
 	w.Header().Set("Content-Type", "application/json")
@@ -90,8 +89,8 @@ type discovery struct {
 	Claims            []string `json:"claims_supported"`
 }
 
-func (s *Server) discoveryHandler() (http.HandlerFunc, error) {
-	d := s.constructDiscovery()
+func (s *Server) discoveryHandler(ctx context.Context) (http.HandlerFunc, error) {
+	d := s.constructDiscovery(ctx)
 
 	data, err := json.MarshalIndent(d, "", "  ")
 	if err != nil {
@@ -105,7 +104,7 @@ func (s *Server) discoveryHandler() (http.HandlerFunc, error) {
 	}), nil
 }
 
-func (s *Server) constructDiscovery() discovery {
+func (s *Server) constructDiscovery(ctx context.Context) discovery {
 	d := discovery{
 		Issuer:            s.issuerURL.String(),
 		Auth:              s.absURL("/auth"),
@@ -125,6 +124,14 @@ func (s *Server) constructDiscovery() discovery {
 		},
 	}
 
+	// Determine signing algorithm from signer
+	signingAlg, err := s.signer.Algorithm(ctx)
+	if err != nil {
+		s.logger.Error("failed to get signing algorithm", "err", err)
+	} else {
+		d.IDTokenAlgs = []string{string(signingAlg)}
+	}
+
 	for responseType := range s.supportedResponseTypes {
 		d.ResponseTypes = append(d.ResponseTypes, responseType)
 	}
@@ -141,7 +148,7 @@ func (s *Server) handleAuthorization(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		s.logger.ErrorContext(r.Context(), "failed to parse arguments", "err", err)
 
-		s.renderError(r, w, http.StatusBadRequest, err.Error())
+		s.renderError(r, w, http.StatusBadRequest, ErrMsgInvalidRequest)
 		return
 	}
 
@@ -374,7 +381,7 @@ func (s *Server) handlePasswordLogin(w http.ResponseWriter, r *http.Request) {
 		identity, ok, err := pwConn.Login(r.Context(), scopes, username, password)
 		if err != nil {
 			s.logger.ErrorContext(r.Context(), "failed to login user", "err", err)
-			s.renderError(r, w, http.StatusInternalServerError, fmt.Sprintf("Login error: %v", err))
+			s.renderError(r, w, http.StatusInternalServerError, ErrMsgLoginError)
 			return
 		}
 		if !ok {
@@ -480,7 +487,7 @@ func (s *Server) handleConnectorCallback(w http.ResponseWriter, r *http.Request)
 
 	if err != nil {
 		s.logger.ErrorContext(r.Context(), "failed to authenticate", "err", err)
-		s.renderError(r, w, http.StatusInternalServerError, fmt.Sprintf("Failed to authenticate: %v", err))
+		s.renderError(r, w, http.StatusInternalServerError, ErrMsgAuthenticationFailed)
 		return
 	}
 
@@ -1099,16 +1106,18 @@ func (s *Server) handleUserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	rawIDToken := auth[len(prefix):]
 
-	verifier := oidc.NewVerifier(s.issuerURL.String(), &storageKeySet{s.storage}, &oidc.Config{SkipClientIDCheck: true})
+	verifier := oidc.NewVerifier(s.issuerURL.String(), &signerKeySet{s.signer}, &oidc.Config{SkipClientIDCheck: true})
 	idToken, err := verifier.Verify(ctx, rawIDToken)
 	if err != nil {
-		s.tokenErrHelper(w, errAccessDenied, err.Error(), http.StatusForbidden)
+		s.logger.ErrorContext(r.Context(), "failed to verify ID token", "err", err)
+		s.tokenErrHelper(w, errAccessDenied, "Invalid bearer token.", http.StatusForbidden)
 		return
 	}
 
 	var claims json.RawMessage
 	if err := idToken.Claims(&claims); err != nil {
-		s.tokenErrHelper(w, errServerError, err.Error(), http.StatusInternalServerError)
+		s.logger.ErrorContext(r.Context(), "failed to decode ID token claims", "err", err)
+		s.tokenErrHelper(w, errServerError, "", http.StatusInternalServerError)
 		return
 	}
 
@@ -1149,7 +1158,8 @@ func (s *Server) handlePasswordGrant(w http.ResponseWriter, r *http.Request, cli
 
 			isTrusted, err := s.validateCrossClientTrust(ctx, client.ID, peerID)
 			if err != nil {
-				s.tokenErrHelper(w, errInvalidClient, fmt.Sprintf("Error validating cross client trust %v.", err), http.StatusBadRequest)
+				s.logger.ErrorContext(r.Context(), "error validating cross client trust", "client_id", client.ID, "peer_id", peerID, "err", err)
+				s.tokenErrHelper(w, errInvalidClient, "Error validating cross client trust.", http.StatusBadRequest)
 				return
 			}
 			if !isTrusted {
