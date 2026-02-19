@@ -897,6 +897,171 @@ func TestOAuth2CodeFlow(t *testing.T) {
 	}
 }
 
+// TestPublicClientPKCE tests that public clients:
+// 1. Can exchange auth codes WITHOUT a client_secret when using PKCE
+// 2. Are REJECTED when they don't use PKCE at all
+func TestPublicClientPKCE(t *testing.T) {
+	publicClientID := "public-test-client"
+
+	t0 := time.Now()
+	now := func() time.Time { return t0 }
+	idTokensValidFor := time.Second * 30
+
+	oidcConfig := &oidc.Config{SkipClientIDCheck: true}
+	basicIDTokenVerify := func(ctx context.Context, p *oidc.Provider, config *oauth2.Config, token *oauth2.Token, conn *mock.Callback) error {
+		idToken, ok := token.Extra("id_token").(string)
+		if !ok {
+			return fmt.Errorf("no id token found")
+		}
+		if _, err := p.Verifier(oidcConfig).Verify(ctx, idToken); err != nil {
+			return fmt.Errorf("failed to verify id token: %v", err)
+		}
+		return nil
+	}
+
+	tests := []test{
+		{
+			// Public client with plain PKCE should succeed without client_secret
+			name: "public client with PKCE succeeds",
+			authCodeOptions: []oauth2.AuthCodeOption{
+				oauth2.SetAuthURLParam("code_challenge", "challenge123"),
+			},
+			retrieveTokenOptions: []oauth2.AuthCodeOption{
+				oauth2.SetAuthURLParam("code_verifier", "challenge123"),
+			},
+			handleToken: basicIDTokenVerify,
+		},
+		{
+			// Public client with S256 PKCE should succeed
+			name: "public client with S256 PKCE succeeds",
+			authCodeOptions: []oauth2.AuthCodeOption{
+				oauth2.SetAuthURLParam("code_challenge", "lyyl-X4a69qrqgEfUL8wodWic3Be9ZZ5eovBgIKKi-w"),
+				oauth2.SetAuthURLParam("code_challenge_method", "S256"),
+			},
+			retrieveTokenOptions: []oauth2.AuthCodeOption{
+				oauth2.SetAuthURLParam("code_verifier", "challenge123"),
+			},
+			handleToken: basicIDTokenVerify,
+		},
+		{
+			// Public client WITHOUT PKCE should be rejected at /auth (redirect error)
+			name:        "public client without PKCE is rejected at auth",
+			handleToken: basicIDTokenVerify,
+			authError: &OAuth2ErrorResponse{
+				Error:            errInvalidRequest,
+				ErrorDescription: "Public clients must use PKCE (code_challenge required).",
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx := t.Context()
+
+			httpServer, s := newTestServer(t, func(c *Config) {
+				c.Issuer += "/non-root-path"
+				c.Now = now
+				c.IDTokensValidFor = idTokensValidFor
+			})
+			defer httpServer.Close()
+
+			p, err := oidc.NewProvider(ctx, httpServer.URL)
+			if err != nil {
+				t.Fatalf("failed to get provider: %v", err)
+			}
+
+			var (
+				gotCode           bool
+				reqDump, respDump []byte
+				state             = "a_state"
+			)
+			defer func() {
+				if !gotCode && tc.authError == nil {
+					t.Errorf("never got a code in callback\n%s\n%s", reqDump, respDump)
+				}
+			}()
+
+			var oauth2Config *oauth2.Config
+			oauth2Client := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/callback" {
+					http.Redirect(w, r, oauth2Config.AuthCodeURL(state, tc.authCodeOptions...), http.StatusSeeOther)
+					return
+				}
+
+				q := r.URL.Query()
+				if errType := q.Get("error"); errType != "" {
+					if tc.authError != nil {
+						if errType != tc.authError.Error {
+							t.Errorf("expected auth error %q, got %q", tc.authError.Error, errType)
+						}
+						gotCode = true // prevent the deferred "never got a code" error
+						return
+					}
+					t.Errorf("got error from server %s: %s", errType, q.Get("error_description"))
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+
+				if code := q.Get("code"); code != "" {
+					gotCode = true
+					token, err := oauth2Config.Exchange(ctx, code, tc.retrieveTokenOptions...)
+					if tc.tokenError.StatusCode != 0 {
+						checkErrorResponse(err, t, tc)
+						return
+					}
+					if err != nil {
+						t.Errorf("failed to exchange code for token: %v", err)
+						return
+					}
+					err = tc.handleToken(ctx, p, oauth2Config, token, nil)
+					if err != nil {
+						t.Errorf("%s: %v", tc.name, err)
+					}
+					return
+				}
+
+				if gotState := q.Get("state"); gotState != state {
+					t.Errorf("state did not match, want=%q got=%q", state, gotState)
+				}
+				w.WriteHeader(http.StatusOK)
+			}))
+			defer oauth2Client.Close()
+
+			// Register a PUBLIC client (no secret, public=true)
+			redirectURL := oauth2Client.URL + "/callback"
+			client := storage.Client{
+				ID:           publicClientID,
+				Public:       true,
+				RedirectURIs: []string{redirectURL},
+			}
+			if err := s.storage.CreateClient(ctx, client); err != nil {
+				t.Fatalf("failed to create client: %v", err)
+			}
+
+			// OAuth2 config with NO client secret (public client)
+			oauth2Config = &oauth2.Config{
+				ClientID:    client.ID,
+				Endpoint:    p.Endpoint(),
+				Scopes:      []string{oidc.ScopeOpenID, "email", "profile"},
+				RedirectURL: redirectURL,
+			}
+
+			resp, err := http.Get(oauth2Client.URL + "/login")
+			if err != nil {
+				t.Fatalf("get failed: %v", err)
+			}
+			defer resp.Body.Close()
+
+			if reqDump, err = httputil.DumpRequest(resp.Request, false); err != nil {
+				t.Fatal(err)
+			}
+			if respDump, err = httputil.DumpResponse(resp, true); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
 func TestOAuth2ImplicitFlow(t *testing.T) {
 	ctx := t.Context()
 

@@ -477,6 +477,11 @@ func (s *Server) parseAuthorizationRequest(r *http.Request) (*storage.AuthReques
 		return nil, newRedirectedErr(errInvalidRequest, description)
 	}
 
+	// Public clients MUST use PKCE — reject early at /auth if code_challenge is missing.
+	if client.Public && codeChallenge == "" {
+		return nil, newRedirectedErr(errInvalidRequest, "Public clients must use PKCE (code_challenge required).")
+	}
+
 	var (
 		unrecognized  []string
 		invalidScopes []string

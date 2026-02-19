@@ -120,6 +120,8 @@ func (s *Server) discoveryHandler(ctx context.Context, t DiscoveryType) (http.Ha
 		d = s.constructDiscoveryOAuth2()
 	case DiscoveryOIDC:
 		d = s.constructDiscoveryOIDC(ctx)
+	default:
+		d = s.constructDiscoveryOIDC(ctx)
 	}
 
 	data, err := json.MarshalIndent(d, "", "  ")
