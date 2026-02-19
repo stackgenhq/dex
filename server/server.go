@@ -458,7 +458,6 @@ func newServer(ctx context.Context, c Config) (*Server, error) {
 		return nil, err
 	}
 	handleWithCORS("/.well-known/oauth-authorization-server", oauthHandler)
-	handleWithCORS("/.well-known/oauth-protected-resource", s.handleProtectedResourceMetadata)
 	// Handle the root path for the better user experience.
 	handleWithCORS("/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := fmt.Fprintf(w, `<!DOCTYPE html>

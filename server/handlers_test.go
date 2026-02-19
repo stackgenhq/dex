@@ -151,29 +151,6 @@ func TestHandleDiscoveryOAuth2(t *testing.T) {
 	}, res)
 }
 
-func TestHandleProtectedResourceMetadata(t *testing.T) {
-	httpServer, server := newTestServer(t, nil)
-	defer httpServer.Close()
-
-	rr := httptest.NewRecorder()
-	server.ServeHTTP(rr, httptest.NewRequest("GET", "/.well-known/oauth-protected-resource", nil))
-
-	if rr.Code != http.StatusOK {
-		t.Errorf("expected 200 got %d", rr.Code)
-	}
-
-	var res protectedResourceMetadata
-	err := json.NewDecoder(rr.Result().Body).Decode(&res)
-	require.NoError(t, err)
-
-	require.Equal(t, protectedResourceMetadata{
-		Resource:               httpServer.URL,
-		AuthorizationServers:   []string{httpServer.URL},
-		ScopesSupported:        []string{"openid", "email", "groups", "profile", "offline_access"},
-		BearerMethodsSupported: []string{"header"},
-	}, res)
-}
-
 func TestHandleHealthFailure(t *testing.T) {
 	httpServer, server := newTestServer(t, func(c *Config) {
 		c.HealthChecker = gosundheit.New()
