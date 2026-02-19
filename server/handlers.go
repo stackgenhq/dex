@@ -103,6 +103,36 @@ type discoveryOAuth2 struct {
 	AuthMethods       []string `json:"token_endpoint_auth_methods_supported,omitempty"`
 }
 
+// protectedResourceMetadata represents the OAuth 2.0 Protected Resource Metadata
+// defined in RFC 9728. This enables MCP clients to discover the authorization
+// server(s) that protect this resource.
+type protectedResourceMetadata struct {
+	Resource               string   `json:"resource"`
+	AuthorizationServers   []string `json:"authorization_servers"`
+	ScopesSupported        []string `json:"scopes_supported,omitempty"`
+	BearerMethodsSupported []string `json:"bearer_methods_supported,omitempty"`
+}
+
+func (s *Server) handleProtectedResourceMetadata(w http.ResponseWriter, r *http.Request) {
+	meta := protectedResourceMetadata{
+		Resource:               s.issuerURL.String(),
+		AuthorizationServers:   []string{s.issuerURL.String()},
+		ScopesSupported:        []string{"openid", "email", "groups", "profile", "offline_access"},
+		BearerMethodsSupported: []string{"header"},
+	}
+
+	data, err := json.MarshalIndent(meta, "", "  ")
+	if err != nil {
+		s.logger.ErrorContext(r.Context(), "failed to marshal protected resource metadata", "err", err)
+		s.renderError(r, w, http.StatusInternalServerError, "Internal server error.")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Length", strconv.Itoa(len(data)))
+	w.Write(data)
+}
+
 type DiscoveryType int
 
 const (

@@ -107,48 +107,71 @@ func TestHandleDiscoveryOIDC(t *testing.T) {
 }
 
 func TestHandleDiscoveryOAuth2(t *testing.T) {
-    httpServer, server := newTestServer(t, nil)
-    defer httpServer.Close()
+	httpServer, server := newTestServer(t, nil)
+	defer httpServer.Close()
 
-    rr := httptest.NewRecorder()
-    server.ServeHTTP(rr, httptest.NewRequest("GET", "/.well-known/oauth-authorization-server", nil))
+	rr := httptest.NewRecorder()
+	server.ServeHTTP(rr, httptest.NewRequest("GET", "/.well-known/oauth-authorization-server", nil))
 
-    if rr.Code != http.StatusOK {
-        t.Errorf("expected 200 got %d", rr.Code)
-    }
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected 200 got %d", rr.Code)
+	}
 
-    var res discoveryOAuth2
-    err := json.NewDecoder(rr.Result().Body).Decode(&res)
-    require.NoError(t, err)
+	var res discoveryOAuth2
+	err := json.NewDecoder(rr.Result().Body).Decode(&res)
+	require.NoError(t, err)
 
-    require.Equal(t, discoveryOAuth2{
-        Issuer:         httpServer.URL,
-        Auth:           fmt.Sprintf("%s/auth", httpServer.URL),
-        Token:          fmt.Sprintf("%s/token", httpServer.URL),
-        Keys:           fmt.Sprintf("%s/keys", httpServer.URL),
-        DeviceEndpoint: fmt.Sprintf("%s/device/code", httpServer.URL),
-        Introspect:     fmt.Sprintf("%s/token/introspect", httpServer.URL),
-        GrantTypes: []string{
-            "authorization_code",
-            "refresh_token",
-            "urn:ietf:params:oauth:grant-type:device_code",
-            "urn:ietf:params:oauth:grant-type:token-exchange",
-        },
-        ResponseTypes: []string{
-            "code",
-        },
-        CodeChallengeAlgs: []string{
-            "S256",
-            "plain",
-        },
-        Scopes: []string{
-            "offline_access",
-        },
-        AuthMethods: []string{
-            "client_secret_basic",
-            "client_secret_post",
-        },
-    }, res)
+	require.Equal(t, discoveryOAuth2{
+		Issuer:         httpServer.URL,
+		Auth:           fmt.Sprintf("%s/auth", httpServer.URL),
+		Token:          fmt.Sprintf("%s/token", httpServer.URL),
+		Keys:           fmt.Sprintf("%s/keys", httpServer.URL),
+		DeviceEndpoint: fmt.Sprintf("%s/device/code", httpServer.URL),
+		Introspect:     fmt.Sprintf("%s/token/introspect", httpServer.URL),
+		GrantTypes: []string{
+			"authorization_code",
+			"refresh_token",
+			"urn:ietf:params:oauth:grant-type:device_code",
+			"urn:ietf:params:oauth:grant-type:token-exchange",
+		},
+		ResponseTypes: []string{
+			"code",
+		},
+		CodeChallengeAlgs: []string{
+			"S256",
+			"plain",
+		},
+		Scopes: []string{
+			"offline_access",
+		},
+		AuthMethods: []string{
+			"client_secret_basic",
+			"client_secret_post",
+		},
+	}, res)
+}
+
+func TestHandleProtectedResourceMetadata(t *testing.T) {
+	httpServer, server := newTestServer(t, nil)
+	defer httpServer.Close()
+
+	rr := httptest.NewRecorder()
+	server.ServeHTTP(rr, httptest.NewRequest("GET", "/.well-known/oauth-protected-resource", nil))
+
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected 200 got %d", rr.Code)
+	}
+
+	var res protectedResourceMetadata
+	err := json.NewDecoder(rr.Result().Body).Decode(&res)
+	require.NoError(t, err)
+
+	require.Equal(t, protectedResourceMetadata{
+		Resource:               httpServer.URL,
+		AuthorizationServers:   []string{httpServer.URL},
+		ScopesSupported:        []string{"openid", "email", "groups", "profile", "offline_access"},
+		BearerMethodsSupported: []string{"header"},
+	}, res)
 }
 
 func TestHandleHealthFailure(t *testing.T) {
