@@ -896,6 +896,8 @@ func (s *Server) withClientFromStorage(w http.ResponseWriter, r *http.Request, h
 			s.tokenErrHelper(w, errInvalidClient, "Invalid client credentials.", http.StatusUnauthorized)
 			return
 		}
+	} else if clientSecret != "" {
+		s.logger.WarnContext(r.Context(), "public client sent client_secret, ignoring", "client_id", client.ID)
 	}
 
 	handler(w, r, client)
@@ -995,6 +997,13 @@ func (s *Server) handleAuthCode(w http.ResponseWriter, r *http.Request, client s
 		// Received PKCE request on /auth, but no code_verifier on /token
 		s.tokenErrHelper(w, errInvalidGrant, "Expecting parameter code_verifier in PKCE flow.", http.StatusBadRequest)
 		return
+	default:
+		// Neither code_challenge nor code_verifier present.
+		// Public clients MUST use PKCE — reject if not used.
+		if client.Public {
+			s.tokenErrHelper(w, errInvalidRequest, "Public clients must use PKCE (code_challenge and code_verifier).", http.StatusBadRequest)
+			return
+		}
 	}
 
 	if authCode.RedirectURI != redirectURI {
