@@ -60,6 +60,7 @@ func TestHandleDiscoveryOIDC(t *testing.T) {
 		UserInfo:       fmt.Sprintf("%s/userinfo", httpServer.URL),
 		DeviceEndpoint: fmt.Sprintf("%s/device/code", httpServer.URL),
 		Introspect:     fmt.Sprintf("%s/token/introspect", httpServer.URL),
+		Registration:   fmt.Sprintf("%s/register", httpServer.URL),
 		GrantTypes: []string{
 			"authorization_code",
 			"refresh_token",
@@ -128,6 +129,7 @@ func TestHandleDiscoveryOAuth2(t *testing.T) {
 		Keys:           fmt.Sprintf("%s/keys", httpServer.URL),
 		DeviceEndpoint: fmt.Sprintf("%s/device/code", httpServer.URL),
 		Introspect:     fmt.Sprintf("%s/token/introspect", httpServer.URL),
+		Registration:   fmt.Sprintf("%s/register", httpServer.URL),
 		GrantTypes: []string{
 			"authorization_code",
 			"refresh_token",

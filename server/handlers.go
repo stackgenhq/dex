@@ -79,6 +79,7 @@ type discoveryOIDC struct {
 	UserInfo          string   `json:"userinfo_endpoint"`
 	DeviceEndpoint    string   `json:"device_authorization_endpoint"`
 	Introspect        string   `json:"introspection_endpoint"`
+	Registration      string   `json:"registration_endpoint,omitempty"`
 	GrantTypes        []string `json:"grant_types_supported"`
 	ResponseTypes     []string `json:"response_types_supported"`
 	Subjects          []string `json:"subject_types_supported"`
@@ -96,6 +97,7 @@ type discoveryOAuth2 struct {
 	Keys              string   `json:"jwks_uri"`
 	DeviceEndpoint    string   `json:"device_authorization_endpoint,omitempty"`
 	Introspect        string   `json:"introspection_endpoint,omitempty"`
+	Registration      string   `json:"registration_endpoint,omitempty"`
 	GrantTypes        []string `json:"grant_types_supported"`
 	ResponseTypes     []string `json:"response_types_supported"`
 	CodeChallengeAlgs []string `json:"code_challenge_methods_supported,omitempty"`
@@ -141,6 +143,7 @@ func (s *Server) constructDiscoveryOIDC(ctx context.Context) discoveryOIDC {
 		UserInfo:          s.absURL("/userinfo"),
 		DeviceEndpoint:    s.absURL("/device/code"),
 		Introspect:        s.absURL("/token/introspect"),
+		Registration:      s.absURL("/register"),
 		Subjects:          []string{"public"},
 		IDTokenAlgs:       []string{string(jose.RS256)},
 		CodeChallengeAlgs: []string{codeChallengeMethodS256, codeChallengeMethodPlain},
@@ -177,6 +180,7 @@ func (s *Server) constructDiscoveryOAuth2() discoveryOAuth2 {
 		Keys:              s.absURL("/keys"),
 		DeviceEndpoint:    s.absURL("/device/code"),
 		Introspect:        s.absURL("/token/introspect"),
+		Registration:      s.absURL("/register"),
 		CodeChallengeAlgs: []string{codeChallengeMethodS256, codeChallengeMethodPlain},
 		Scopes:            []string{"offline_access"},
 		AuthMethods:       []string{"client_secret_basic", "client_secret_post"},
