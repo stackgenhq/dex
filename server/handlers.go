@@ -884,14 +884,18 @@ func (s *Server) withClientFromStorage(w http.ResponseWriter, r *http.Request, h
 		return
 	}
 
-	if subtle.ConstantTimeCompare([]byte(client.Secret), []byte(clientSecret)) != 1 {
-		if clientSecret == "" {
-			s.logger.InfoContext(r.Context(), "missing client_secret on token request", "client_id", client.ID)
-		} else {
-			s.logger.InfoContext(r.Context(), "invalid client_secret on token request", "client_id", client.ID)
+	// Public clients (e.g., MCP/CLI) authenticate via PKCE, not client_secret.
+	// Skip secret validation for public clients.
+	if !client.Public {
+		if subtle.ConstantTimeCompare([]byte(client.Secret), []byte(clientSecret)) != 1 {
+			if clientSecret == "" {
+				s.logger.InfoContext(r.Context(), "missing client_secret on token request", "client_id", client.ID)
+			} else {
+				s.logger.InfoContext(r.Context(), "invalid client_secret on token request", "client_id", client.ID)
+			}
+			s.tokenErrHelper(w, errInvalidClient, "Invalid client credentials.", http.StatusUnauthorized)
+			return
 		}
-		s.tokenErrHelper(w, errInvalidClient, "Invalid client credentials.", http.StatusUnauthorized)
-		return
 	}
 
 	handler(w, r, client)
