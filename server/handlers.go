@@ -1460,23 +1460,69 @@ func (s *Server) handleTokenExchange(w http.ResponseWriter, r *http.Request, cli
 		return
 	}
 
-	conn, err := s.getConnector(ctx, connID)
-	if err != nil {
-		s.logger.ErrorContext(r.Context(), "failed to get connector", "err", err)
-		s.tokenErrHelper(w, errInvalidRequest, "Requested connector does not exist.", http.StatusBadRequest)
-		return
-	}
-	teConn, ok := conn.Connector.(connector.TokenIdentityConnector)
-	if !ok {
-		s.logger.ErrorContext(r.Context(), "connector doesn't implement token exchange", "connector_id", connID)
-		s.tokenErrHelper(w, errInvalidRequest, "Requested connector does not exist.", http.StatusBadRequest)
-		return
-	}
-	identity, err := teConn.TokenIdentity(ctx, subjectTokenType, subjectToken)
-	if err != nil {
-		s.logger.ErrorContext(r.Context(), "failed to verify subject token", "err", err)
-		s.tokenErrHelper(w, errAccessDenied, "", http.StatusUnauthorized)
-		return
+	var err error
+	var identity connector.Identity
+	if connID == "local" || connID == "" {
+		// Verify local Dex token
+		verifier := oidc.NewVerifier(s.issuerURL.String(), &signerKeySet{s.signer}, &oidc.Config{SkipClientIDCheck: true})
+		idToken, err := verifier.Verify(ctx, subjectToken)
+		if err != nil {
+			s.logger.ErrorContext(r.Context(), "failed to verify local subject token", "err", err)
+			s.tokenErrHelper(w, errAccessDenied, "Invalid subject token.", http.StatusUnauthorized)
+			return
+		}
+
+		var claims idTokenClaims
+		if err := idToken.Claims(&claims); err != nil {
+			s.logger.ErrorContext(r.Context(), "failed to decode ID token claims", "err", err)
+			s.tokenErrHelper(w, errServerError, "Invalid subject token claims.", http.StatusInternalServerError)
+			return
+		}
+
+		var sub internal.IDTokenSubject
+		if err := internal.Unmarshal(claims.Subject, &sub); err != nil {
+			s.logger.ErrorContext(r.Context(), "failed to unmarshal subject", "err", err)
+			s.tokenErrHelper(w, errServerError, "Invalid subject format.", http.StatusInternalServerError)
+			return
+		}
+
+		if connID == "" {
+			connID = sub.ConnId
+		}
+
+		emailVerified := false
+		if claims.EmailVerified != nil {
+			emailVerified = *claims.EmailVerified
+		}
+
+		identity = connector.Identity{
+			UserID:            sub.UserId,
+			Username:          claims.Name,
+			PreferredUsername: claims.PreferredUsername,
+			Email:             claims.Email,
+			EmailVerified:     emailVerified,
+			Groups:            claims.Groups,
+		}
+	} else {
+		conn, err := s.getConnector(ctx, connID)
+		if err != nil {
+			s.logger.ErrorContext(r.Context(), "failed to get connector", "err", err)
+			s.tokenErrHelper(w, errInvalidRequest, "Requested connector does not exist.", http.StatusBadRequest)
+			return
+		}
+		teConn, ok := conn.Connector.(connector.TokenIdentityConnector)
+		if !ok {
+			s.logger.ErrorContext(r.Context(), "connector doesn't implement token exchange", "connector_id", connID)
+			s.tokenErrHelper(w, errInvalidRequest, "Requested connector does not exist.", http.StatusBadRequest)
+			return
+		}
+
+		identity, err = teConn.TokenIdentity(ctx, subjectTokenType, subjectToken)
+		if err != nil {
+			s.logger.ErrorContext(r.Context(), "failed to verify subject token", "err", err)
+			s.tokenErrHelper(w, errAccessDenied, "", http.StatusUnauthorized)
+			return
+		}
 	}
 
 	claims := storage.Claims{
