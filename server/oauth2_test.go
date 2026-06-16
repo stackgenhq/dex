@@ -413,6 +413,13 @@ func TestValidRedirectURI(t *testing.T) {
 			redirectURI: "http://foo.com/bar/baz",
 			wantValid:   false,
 		},
+		{
+			client: storage.Client{
+				RedirectURIs: []string{"http://foo.com/bar"},
+			},
+			redirectURI: "http://localhost:991/bar",
+			wantValid:   false,
+		},
 		// These special desktop + device + localhost URIs are allowed by default.
 		{
 			client: storage.Client{
@@ -510,7 +517,7 @@ func TestValidRedirectURI(t *testing.T) {
 				RedirectURIs: []string{"http://foo.com/bar"},
 			},
 			redirectURI: "http://localhost:8080/",
-			wantValid:   false,
+			wantValid:   true,
 		},
 		{
 			client: storage.Client{
@@ -518,7 +525,7 @@ func TestValidRedirectURI(t *testing.T) {
 				RedirectURIs: []string{"http://foo.com/bar"},
 			},
 			redirectURI: "http://localhost:991/bar",
-			wantValid:   false,
+			wantValid:   true,
 		},
 		{
 			client: storage.Client{
@@ -526,7 +533,7 @@ func TestValidRedirectURI(t *testing.T) {
 				RedirectURIs: []string{"http://foo.com/bar"},
 			},
 			redirectURI: "http://localhost",
-			wantValid:   false,
+			wantValid:   true,
 		},
 		// These special desktop + device + localhost URIs can still be specified explicitly.
 		{
