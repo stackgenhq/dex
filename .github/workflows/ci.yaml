@@ -178,9 +178,6 @@ jobs:
     uses: ./.github/workflows/artifacts.yaml
     with:
       publish: ${{ github.event_name == 'push' }}
-    secrets:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
     permissions:
       attestations: write
       contents: read
