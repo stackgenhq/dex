@@ -62,7 +62,14 @@ func (l *localSigner) Start(ctx context.Context) {
 				return
 			case <-time.After(time.Second * 30):
 				if err := l.rotator.rotate(); err != nil {
-					l.logger.Error("failed to rotate keys", "err", err)
+						if err == errAlreadyRotated {
+							// Another instance rotated the keys between our expiry
+							// check and the update; expected when running multiple
+							// replicas against a shared database.
+							l.logger.Info("key rotation not needed", "err", err)
+						} else {
+							l.logger.Error("failed to rotate keys", "err", err)
+						}
 				}
 			}
 		}
