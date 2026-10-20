@@ -6,6 +6,7 @@ import (
 
 	"github.com/dexidp/dex/storage"
 	"github.com/dexidp/dex/storage/ent/db"
+	"github.com/dexidp/dex/storage/sqlretry"
 )
 
 func getKeys(ctx context.Context, client *db.KeysClient) (storage.Keys, error) {
@@ -23,7 +24,22 @@ func (d *Database) GetKeys(ctx context.Context) (storage.Keys, error) {
 }
 
 // UpdateKeys rotates keys using updater function.
+//
+// The update runs in a SERIALIZABLE transaction; when multiple dex instances
+// rotate their signing keys concurrently, the database aborts all but one
+// transaction with a serialization failure (SQLSTATE 40001/40P01). Retry the
+// whole transaction on those transient errors: every attempt re-reads the
+// current keys, and the updater's NextRotation check makes the losing instance
+// converge to errAlreadyRotated instead of failing.
 func (d *Database) UpdateKeys(ctx context.Context, updater func(old storage.Keys) (storage.Keys, error)) error {
+	return sqlretry.Do(
+		func() error { return d.updateKeysOnce(ctx, updater) },
+		sqlretry.IsSerializationFailure,
+		nil,
+	)
+}
+
+func (d *Database) updateKeysOnce(ctx context.Context, updater func(old storage.Keys) (storage.Keys, error)) error {
 	firstUpdate := false
 
 	tx, err := d.BeginTx(ctx)

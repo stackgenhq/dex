@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/storage/sqlretry"
 )
 
 // TODO(ericchiang): The update, insert, and select methods queries are all
@@ -418,7 +419,23 @@ func scanRefresh(s scanner) (r storage.RefreshToken, err error) {
 	return r, nil
 }
 
+// UpdateKeys rotates keys using updater function.
+//
+// The update runs in a SERIALIZABLE transaction (see flavor.executeTx); when
+// multiple dex instances rotate their signing keys concurrently, the database
+// aborts all but one transaction with a serialization failure (SQLSTATE
+// 40001/40P01). Retry the whole transaction on those transient errors: every
+// attempt re-reads the current keys, and the updater's NextRotation check
+// makes the losing instance converge to errAlreadyRotated instead of failing.
 func (c *conn) UpdateKeys(ctx context.Context, updater func(old storage.Keys) (storage.Keys, error)) error {
+	return sqlretry.Do(
+		func() error { return c.updateKeysOnce(ctx, updater) },
+		sqlretry.IsSerializationFailure,
+		nil,
+	)
+}
+
+func (c *conn) updateKeysOnce(ctx context.Context, updater func(old storage.Keys) (storage.Keys, error)) error {
 	return c.ExecTx(func(tx *trans) error {
 		firstUpdate := false
 		// TODO(ericchiang): errors may cause a transaction be rolled back by the SQL
@@ -426,7 +443,7 @@ func (c *conn) UpdateKeys(ctx context.Context, updater func(old storage.Keys) (s
 		old, err := getKeys(ctx, tx)
 		if err != nil {
 			if err != storage.ErrNotFound {
-				return fmt.Errorf("get keys: %v", err)
+				return fmt.Errorf("get keys: %w", err)
 			}
 			firstUpdate = true
 			old = storage.Keys{}
@@ -448,7 +465,7 @@ func (c *conn) UpdateKeys(ctx context.Context, updater func(old storage.Keys) (s
 				encoder(nk.SigningKeyPub), nk.NextRotation,
 			)
 			if err != nil {
-				return fmt.Errorf("insert: %v", err)
+				return fmt.Errorf("insert: %w", err)
 			}
 		} else {
 			_, err = tx.Exec(`
@@ -464,7 +481,7 @@ func (c *conn) UpdateKeys(ctx context.Context, updater func(old storage.Keys) (s
 				encoder(nk.SigningKeyPub), nk.NextRotation, keysRowID,
 			)
 			if err != nil {
-				return fmt.Errorf("update: %v", err)
+				return fmt.Errorf("update: %w", err)
 			}
 		}
 		return nil
@@ -489,7 +506,7 @@ func getKeys(ctx context.Context, q querier) (keys storage.Keys, err error) {
 		if err == sql.ErrNoRows {
 			return keys, storage.ErrNotFound
 		}
-		return keys, fmt.Errorf("query keys: %v", err)
+		return keys, fmt.Errorf("query keys: %w", err)
 	}
 	return keys, nil
 }
