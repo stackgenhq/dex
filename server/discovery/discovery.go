@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -35,6 +36,10 @@ type Handler struct {
 	docOnce sync.Once
 	docData []byte
 	docErr  error
+
+	oauthDocOnce sync.Once
+	oauthDocData []byte
+	oauthDocErr  error
 }
 
 // renderError renders a user-facing HTML error page.
@@ -46,6 +51,16 @@ func (h *Handler) renderError(r *http.Request, w http.ResponseWriter, status int
 func (h *Handler) Mount(m router.Mux) {
 	m.HandleCORS("/.well-known/openid-configuration", h.serveDocument)
 	m.HandleCORS("/keys", h.Keys)
+
+	// RFC 8414 OAuth 2.0 Authorization Server Metadata, used by clients that
+	// do not speak OIDC (e.g. MCP clients). The path-insertion form is served
+	// as well, so issuers with a path component are discoverable: issuer
+	// "https://example.com/auth" also serves
+	// "/.well-known/oauth-authorization-server/auth".
+	m.HandleCORS("/.well-known/oauth-authorization-server", h.serveOAuth2Document)
+	if issuerPath := strings.Trim(h.IssuerURL.Path, "/"); issuerPath != "" {
+		m.HandleCORS("/.well-known/oauth-authorization-server/"+issuerPath, h.serveOAuth2Document)
+	}
 }
 
 // Document is the OIDC discovery document.
@@ -57,6 +72,7 @@ type Document struct {
 	UserInfo       string `json:"userinfo_endpoint"`
 	DeviceEndpoint string `json:"device_authorization_endpoint"`
 	Introspect     string `json:"introspection_endpoint"`
+	Registration   string `json:"registration_endpoint,omitempty"`
 	EndSession     string `json:"end_session_endpoint,omitempty"`
 	// BackchannelLogout and BackchannelLogoutSession advertise OIDC Back-Channel
 	// Logout 1.0. Both are omitted rather than sent as false when sessions are off,
@@ -71,6 +87,26 @@ type Document struct {
 	Scopes                   []string `json:"scopes_supported"`
 	AuthMethods              []string `json:"token_endpoint_auth_methods_supported"`
 	Claims                   []string `json:"claims_supported"`
+}
+
+// OAuth2Metadata is the RFC 8414 OAuth 2.0 Authorization Server Metadata
+// document served at /.well-known/oauth-authorization-server. It carries the
+// endpoint information shared with the OIDC discovery document but omits the
+// OIDC-specific fields, and is what MCP and other pure-OAuth2 clients use to
+// discover dex.
+type OAuth2Metadata struct {
+	Issuer            string   `json:"issuer"`
+	Auth              string   `json:"authorization_endpoint"`
+	Token             string   `json:"token_endpoint"`
+	Keys              string   `json:"jwks_uri"`
+	DeviceEndpoint    string   `json:"device_authorization_endpoint,omitempty"`
+	Introspect        string   `json:"introspection_endpoint,omitempty"`
+	Registration      string   `json:"registration_endpoint,omitempty"`
+	GrantTypes        []string `json:"grant_types_supported"`
+	ResponseTypes     []string `json:"response_types_supported"`
+	CodeChallengeAlgs []string `json:"code_challenge_methods_supported,omitempty"`
+	Scopes            []string `json:"scopes_supported,omitempty"`
+	AuthMethods       []string `json:"token_endpoint_auth_methods_supported,omitempty"`
 }
 
 // Keys serves the JSON Web Key Set.
@@ -130,6 +166,23 @@ func (h *Handler) serveDocument(w http.ResponseWriter, r *http.Request) {
 	w.Write(h.docData)
 }
 
+// serveOAuth2Document serves the RFC 8414 metadata document, marshaling it
+// once on first use.
+func (h *Handler) serveOAuth2Document(w http.ResponseWriter, r *http.Request) {
+	h.oauthDocOnce.Do(func() {
+		h.oauthDocData, h.oauthDocErr = json.MarshalIndent(h.ConstructOAuth2Metadata(), "", "  ")
+	})
+	if h.oauthDocErr != nil {
+		h.Logger.ErrorContext(r.Context(), "failed to marshal oauth authorization server metadata", "err", h.oauthDocErr)
+		h.renderError(r, w, http.StatusInternalServerError, "Internal server error.")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Length", strconv.Itoa(len(h.oauthDocData)))
+	w.Write(h.oauthDocData)
+}
+
 // Construct builds the discovery document from the current configuration.
 func (h *Handler) Construct(ctx context.Context) Document {
 	d := Document{
@@ -140,6 +193,7 @@ func (h *Handler) Construct(ctx context.Context) Document {
 		UserInfo:          h.IssuerURL.AbsURL("/userinfo"),
 		DeviceEndpoint:    h.IssuerURL.AbsURL("/device/code"),
 		Introspect:        h.IssuerURL.AbsURL("/token/introspect"),
+		Registration:      h.IssuerURL.AbsURL("/register"),
 		Subjects:          []string{"public"},
 		IDTokenAlgs:       []string{string(jose.RS256)},
 		CodeChallengeAlgs: h.PKCEMethods,
@@ -175,6 +229,33 @@ func (h *Handler) Construct(ctx context.Context) Document {
 		d.BackchannelLogoutSession = true
 		d.Claims = append(d.Claims, "sid")
 	}
+
+	return d
+}
+
+// ConstructOAuth2Metadata builds the RFC 8414 OAuth 2.0 Authorization Server
+// Metadata document, mirroring the OIDC discovery document minus the
+// OIDC-specific fields.
+func (h *Handler) ConstructOAuth2Metadata() OAuth2Metadata {
+	d := OAuth2Metadata{
+		Issuer:            h.IssuerURL.String(),
+		Auth:              h.IssuerURL.AbsURL("/auth"),
+		Token:             h.IssuerURL.AbsURL("/token"),
+		Keys:              h.IssuerURL.AbsURL("/keys"),
+		DeviceEndpoint:    h.IssuerURL.AbsURL("/device/code"),
+		Introspect:        h.IssuerURL.AbsURL("/token/introspect"),
+		Registration:      h.IssuerURL.AbsURL("/register"),
+		CodeChallengeAlgs: h.PKCEMethods,
+		Scopes:            []string{"offline_access"},
+		AuthMethods:       []string{"client_secret_basic", "client_secret_post"},
+	}
+
+	for responseType := range h.ResponseTypes {
+		d.ResponseTypes = append(d.ResponseTypes, responseType)
+	}
+	sort.Strings(d.ResponseTypes)
+
+	d.GrantTypes = h.GrantTypes
 
 	return d
 }

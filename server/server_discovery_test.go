@@ -37,6 +37,7 @@ func TestHandleDiscovery(t *testing.T) {
 		UserInfo:       fmt.Sprintf("%s/userinfo", httpServer.URL),
 		DeviceEndpoint: fmt.Sprintf("%s/device/code", httpServer.URL),
 		Introspect:     fmt.Sprintf("%s/token/introspect", httpServer.URL),
+		Registration:   fmt.Sprintf("%s/register", httpServer.URL),
 		GrantTypes: []string{
 			"authorization_code",
 			"client_credentials",
@@ -82,6 +83,51 @@ func TestHandleDiscovery(t *testing.T) {
 			"at_hash",
 			"groups",
 			"federated_claims",
+		},
+	}, res)
+}
+
+func TestHandleOAuth2AuthorizationServerMetadata(t *testing.T) {
+	httpServer, server := newTestServer(t, nil)
+	defer httpServer.Close()
+
+	rr := httptest.NewRecorder()
+	server.ServeHTTP(rr, httptest.NewRequest("GET", "/.well-known/oauth-authorization-server", nil))
+	if rr.Code != http.StatusOK {
+		t.Errorf("expected 200 got %d", rr.Code)
+	}
+
+	var res discovery.OAuth2Metadata
+	err := json.NewDecoder(rr.Result().Body).Decode(&res)
+	require.NoError(t, err)
+	require.Equal(t, discovery.OAuth2Metadata{
+		Issuer:         httpServer.URL,
+		Auth:           fmt.Sprintf("%s/auth", httpServer.URL),
+		Token:          fmt.Sprintf("%s/token", httpServer.URL),
+		Keys:           fmt.Sprintf("%s/keys", httpServer.URL),
+		DeviceEndpoint: fmt.Sprintf("%s/device/code", httpServer.URL),
+		Introspect:     fmt.Sprintf("%s/token/introspect", httpServer.URL),
+		Registration:   fmt.Sprintf("%s/register", httpServer.URL),
+		GrantTypes: []string{
+			"authorization_code",
+			"client_credentials",
+			"refresh_token",
+			"urn:ietf:params:oauth:grant-type:device_code",
+			"urn:ietf:params:oauth:grant-type:token-exchange",
+		},
+		ResponseTypes: []string{
+			"code",
+		},
+		CodeChallengeAlgs: []string{
+			"S256",
+			"plain",
+		},
+		Scopes: []string{
+			"offline_access",
+		},
+		AuthMethods: []string{
+			"client_secret_basic",
+			"client_secret_post",
 		},
 	}, res)
 }
