@@ -93,6 +93,12 @@ func validateRedirectURI(client storage.Client, redirectURI string) bool {
 			return true
 		}
 	}
+	// Public clients always support localhost callbacks, even when explicit
+	// RedirectURIs are configured: MCP and native clients use dynamic loopback
+	// ports, so any loopback form is accepted for them.
+	if client.Public && isLoopbackRedirectURI(redirectURI) {
+		return true
+	}
 	// For non-public clients or when RedirectURIs is set, we allow only explicitly named RedirectURIs.
 	if !client.Public || len(client.RedirectURIs) > 0 {
 		return false
@@ -124,6 +130,20 @@ func isHostLocal(host string) bool {
 	}
 
 	return host == "localhost" || net.ParseIP(host).IsLoopback()
+}
+
+// isLoopbackRedirectURI reports whether redirectURI is an http URL with a
+// loopback host ("http://localhost:(port)(path)", "http://localhost(path)" or
+// numeric forms like "http://127.0.0.1:(port)(path)").
+func isLoopbackRedirectURI(redirectURI string) bool {
+	u, err := url.Parse(redirectURI)
+	if err != nil {
+		return false
+	}
+	if u.Scheme != "http" {
+		return false
+	}
+	return isHostLocal(u.Host)
 }
 
 func validateConnectorID(connectors []storage.Connector, connectorID string) bool {
@@ -251,6 +271,16 @@ func (h *Handler) parseAuthorizationRequest(r *http.Request) (*storage.AuthReque
 	// https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-12#section-4.1.1
 	if h.PKCE.Enforce && codeChallenge == "" {
 		return nil, "", newredirectedAuthErr(oauth2.InvalidRequest, "PKCE is required. The code_challenge parameter must be provided.")
+	}
+
+	// Public clients MUST use PKCE: they hold no client secret, so the
+	// authorization code must be bound to the original request via the
+	// code challenge (required by the MCP authorization profile). The
+	// device flow is exempt: its codes are bound to the device grant
+	// rather than a PKCE challenge.
+	if client.Public && codeChallenge == "" &&
+		redirectURI != oauth2.DeviceCallbackURI && redirectURI != h.IssuerURL.AbsPath(oauth2.DeviceCallbackURI) {
+		return nil, "", newredirectedAuthErr(oauth2.InvalidRequest, "Public clients must use PKCE (code_challenge required).")
 	}
 
 	var (

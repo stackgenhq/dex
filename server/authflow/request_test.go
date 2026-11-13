@@ -338,6 +338,49 @@ func TestParseAuthorizationRequest(t *testing.T) {
 			},
 		},
 		{
+			name: "public client without code_challenge rejected",
+			clients: []storage.Client{
+				{
+					ID:           "public",
+					Public:       true,
+					RedirectURIs: []string{"https://example.com/bar"},
+				},
+			},
+			supportedResponseTypes: []string{"code"},
+			pkce: PKCEConfig{
+				CodeChallengeMethodsSupported: []string{"S256", "plain"},
+			},
+			queryParams: map[string]string{
+				"client_id":     "public",
+				"redirect_uri":  "https://example.com/bar",
+				"response_type": "code",
+				"scope":         "openid email profile",
+			},
+			expectedError: &redirectedAuthErr{Type: oauth2.InvalidRequest},
+		},
+		{
+			name: "public client with code_challenge accepted",
+			clients: []storage.Client{
+				{
+					ID:           "public",
+					Public:       true,
+					RedirectURIs: []string{"https://example.com/bar"},
+				},
+			},
+			supportedResponseTypes: []string{"code"},
+			pkce: PKCEConfig{
+				CodeChallengeMethodsSupported: []string{"S256", "plain"},
+			},
+			queryParams: map[string]string{
+				"client_id":             "public",
+				"redirect_uri":          "https://example.com/bar",
+				"response_type":         "code",
+				"code_challenge":        "123",
+				"code_challenge_method": "plain",
+				"scope":                 "openid email profile",
+			},
+		},
+		{
 			name: "PKCE only S256 allowed, plain rejected",
 			clients: []storage.Client{
 				{
@@ -534,7 +577,10 @@ func TestValidRedirectURI(t *testing.T) {
 			redirectURI: "http://foo.com/bar/baz",
 			wantValid:   false,
 		},
-		// These special desktop + device + localhost URIs are not allowed implicitly when RedirectURIs is non-empty.
+		// OOB and device callback URIs are not allowed implicitly when
+		// RedirectURIs is non-empty, but loopback redirects always are:
+		// public clients (e.g. MCP or native apps) use dynamic loopback
+		// ports even when explicit RedirectURIs are configured.
 		{
 			client: storage.Client{
 				Public:       true,
@@ -557,7 +603,7 @@ func TestValidRedirectURI(t *testing.T) {
 				RedirectURIs: []string{"http://foo.com/bar"},
 			},
 			redirectURI: "http://localhost:8080/",
-			wantValid:   false,
+			wantValid:   true,
 		},
 		{
 			client: storage.Client{
@@ -565,7 +611,7 @@ func TestValidRedirectURI(t *testing.T) {
 				RedirectURIs: []string{"http://foo.com/bar"},
 			},
 			redirectURI: "http://localhost:991/bar",
-			wantValid:   false,
+			wantValid:   true,
 		},
 		{
 			client: storage.Client{
@@ -573,7 +619,15 @@ func TestValidRedirectURI(t *testing.T) {
 				RedirectURIs: []string{"http://foo.com/bar"},
 			},
 			redirectURI: "http://localhost",
-			wantValid:   false,
+			wantValid:   true,
+		},
+		{
+			client: storage.Client{
+				Public:       true,
+				RedirectURIs: []string{"http://foo.com/bar"},
+			},
+			redirectURI: "http://127.0.0.1:991/bar",
+			wantValid:   true,
 		},
 		// These special desktop + device + localhost URIs can still be specified explicitly.
 		{
