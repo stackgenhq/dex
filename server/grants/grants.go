@@ -354,14 +354,19 @@ func (h *Handler) authenticateClient(ctx context.Context, w http.ResponseWriter,
 		return storage.Client{}, false
 	}
 
-	if subtle.ConstantTimeCompare([]byte(client.Secret), []byte(req.ClientSecret)) != 1 {
-		if req.ClientSecret == "" {
-			h.Logger.InfoContext(ctx, "missing client_secret on token request", "client_id", client.ID)
-		} else {
-			h.Logger.InfoContext(ctx, "invalid client_secret on token request", "client_id", client.ID)
+	// Public clients (e.g. MCP or CLI apps) authenticate via PKCE rather than
+	// a client secret. Skip secret validation for them; the authorization code
+	// is still bound to the request through the PKCE challenge.
+	if !client.Public {
+		if subtle.ConstantTimeCompare([]byte(client.Secret), []byte(req.ClientSecret)) != 1 {
+			if req.ClientSecret == "" {
+				h.Logger.InfoContext(ctx, "missing client_secret on token request", "client_id", client.ID)
+			} else {
+				h.Logger.InfoContext(ctx, "invalid client_secret on token request", "client_id", client.ID)
+			}
+			h.writeError(ctx, w, &oauth2.Error{Type: oauth2.InvalidClient, Description: "Invalid client credentials.", Status: http.StatusUnauthorized})
+			return storage.Client{}, false
 		}
-		h.writeError(ctx, w, &oauth2.Error{Type: oauth2.InvalidClient, Description: "Invalid client credentials.", Status: http.StatusUnauthorized})
-		return storage.Client{}, false
 	}
 
 	return client, true
