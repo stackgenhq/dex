@@ -8,7 +8,10 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"net/http"
+	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -346,6 +349,9 @@ func (b *bitbucketConnector) userEmail(ctx context.Context, client *http.Client)
 		if response.Next == nil {
 			break
 		}
+		if !isAllowedURL(*response.Next) {
+			return "", errors.New("bitbucket: invalid pagination URL")
+		}
 		apiURL = *response.Next
 	}
 
@@ -408,6 +414,9 @@ func (b *bitbucketConnector) userWorkspaces(ctx context.Context, client *http.Cl
 		if response.Next == nil {
 			break
 		}
+		if !isAllowedURL(*response.Next) {
+			return nil, errors.New("bitbucket: invalid pagination URL")
+		}
 		apiURL = *response.Next
 	}
 
@@ -435,6 +444,20 @@ func (b *bitbucketConnector) userWorkspacePermission(ctx context.Context, client
 		return "", fmt.Errorf("get workspace %q permission: %v", workspaceSlug, err)
 	}
 	return response.Permission, nil
+}
+
+var allowedHosts = map[string]bool{"api.bitbucket.org": true}
+
+func isAllowedURL(raw string) bool {
+	u, err := url.Parse(raw)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.User != nil {
+		return false
+	}
+	host, port := strings.ToLower(u.Hostname()), u.Port()
+	if port == "" || (u.Scheme == "http" && port == "80") || (u.Scheme == "https" && port == "443") {
+		return allowedHosts[host]
+	}
+	return allowedHosts[net.JoinHostPort(host, port)]
 }
 
 // get creates a "GET `apiURL`" request with context, sends the request using
