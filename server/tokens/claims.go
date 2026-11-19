@@ -11,7 +11,7 @@ import (
 
 	jose "github.com/go-jose/go-jose/v4"
 
-	"github.com/dexidp/dex/server/internal"
+	"github.com/dexidp/dex/v2/server/internal"
 )
 
 var hashForSigAlg = map[jose.SignatureAlgorithm]func() hash.Hash{

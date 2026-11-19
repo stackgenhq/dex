@@ -12,14 +12,14 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/server/internal"
-	"github.com/dexidp/dex/server/mfa"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/session"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/memory"
+	"github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/server/internal"
+	"github.com/dexidp/dex/v2/server/mfa"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/session"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
+	"github.com/dexidp/dex/v2/storage/memory"
 )
 
 // sessionTestServer wraps the login Handler together with the standalone consent

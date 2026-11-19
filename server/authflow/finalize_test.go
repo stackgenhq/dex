@@ -10,9 +10,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/server/session"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/server/session"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 func TestFinalizeLoginBlockedAccount(t *testing.T) {

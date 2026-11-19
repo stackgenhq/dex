@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/dexidp/dex/storage/ent/db/keys"
-	"github.com/dexidp/dex/storage/ent/db/predicate"
+	"github.com/dexidp/dex/v2/storage/ent/db/keys"
+	"github.com/dexidp/dex/v2/storage/ent/db/predicate"
 )
 
 // KeysQuery is the builder for querying Keys entities.

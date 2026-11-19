@@ -14,8 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 func TestHandlePassword(t *testing.T) {

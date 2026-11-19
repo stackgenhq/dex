@@ -11,10 +11,10 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/dexidp/dex/server/consent"
-	"github.com/dexidp/dex/server/internal"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/consent"
+	"github.com/dexidp/dex/v2/server/internal"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 func (h *Handler) handleContinue(w http.ResponseWriter, r *http.Request) {

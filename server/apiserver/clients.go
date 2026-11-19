@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/dexidp/dex/api/v2"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 func (d dexAPI) GetClient(ctx context.Context, req *api.GetClientReq) (*api.GetClientResp, error) {

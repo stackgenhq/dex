@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dexidp/dex/server/device"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/device"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 func TestHandleDeviceCode(t *testing.T) {

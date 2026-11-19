@@ -15,10 +15,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/dexidp/dex/server/internal"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/signer"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/internal"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/signer"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 const (

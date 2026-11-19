@@ -5,13 +5,13 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/dexidp/dex/server/internal"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/router"
-	"github.com/dexidp/dex/server/session"
-	"github.com/dexidp/dex/server/templates"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/internal"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/router"
+	"github.com/dexidp/dex/v2/server/session"
+	"github.com/dexidp/dex/v2/server/templates"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // Handler owns the consent step. The /auth dispatcher decides whether consent is

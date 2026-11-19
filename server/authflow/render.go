@@ -3,7 +3,7 @@ package authflow
 import (
 	"net/http"
 
-	"github.com/dexidp/dex/server/templates"
+	"github.com/dexidp/dex/v2/server/templates"
 )
 
 // renderError renders a user-facing HTML error page.

@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/dexidp/dex/api/v2"
-	"github.com/dexidp/dex/pkg/featureflags"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/pkg/featureflags"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 func storageUserIdentityToAPI(u storage.UserIdentity) *api.UserIdentity {

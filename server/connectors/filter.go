@@ -1,6 +1,6 @@
 package connectors
 
-import "github.com/dexidp/dex/storage"
+import "github.com/dexidp/dex/v2/storage"
 
 // Filter returns the connectors allowed for a client. When allowedConnectors is
 // empty the list is returned unfiltered. It is the browser auth flow's counterpart

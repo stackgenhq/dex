@@ -4,7 +4,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/dexidp/dex/connector"
+	"github.com/dexidp/dex/v2/connector"
 )
 
 // OIDC scope values. They all live here so scope handling stays in one place.

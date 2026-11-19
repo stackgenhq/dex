@@ -14,9 +14,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // writeResponse issues the authorization response for a completed auth request:

@@ -12,7 +12,7 @@ import (
 	gowebauthn "github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // WebAuthnProvider implements WebAuthn-based multi-factor authentication.

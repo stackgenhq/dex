@@ -7,9 +7,9 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/server/passwords"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/server/passwords"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // NewPasswordDB returns the built-in local password connector backed by the

@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // CreateAuthCode saves provided auth code into the database.

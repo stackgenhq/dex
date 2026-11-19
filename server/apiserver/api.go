@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/dexidp/dex/api/v2"
-	"github.com/dexidp/dex/server/backchannel"
-	"github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/server/discovery"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/backchannel"
+	"github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/server/discovery"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // apiVersion increases every time a new call is added to the API. Clients should use this info

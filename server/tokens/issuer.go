@@ -10,8 +10,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/dexidp/dex/server/signer"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/signer"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // Issuer turns an Authorization into signed tokens. It mints access and ID

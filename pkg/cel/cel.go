@@ -10,7 +10,7 @@ import (
 	"github.com/google/cel-go/common/types/ref"
 	"github.com/google/cel-go/ext"
 
-	"github.com/dexidp/dex/pkg/cel/library"
+	"github.com/dexidp/dex/v2/pkg/cel/library"
 )
 
 // EnvironmentVersion represents the version of the CEL environment.

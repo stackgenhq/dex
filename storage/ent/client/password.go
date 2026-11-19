@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/ent/db/password"
+	"github.com/dexidp/dex/v2/storage"
+	"github.com/dexidp/dex/v2/storage/ent/db/password"
 )
 
 // CreatePassword saves provided password into the database.

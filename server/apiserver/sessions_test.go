@@ -13,12 +13,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/dexidp/dex/api/v2"
-	"github.com/dexidp/dex/pkg/featureflags"
-	"github.com/dexidp/dex/server/backchannel"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/signer"
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/memory"
+	"github.com/dexidp/dex/v2/pkg/featureflags"
+	"github.com/dexidp/dex/v2/server/backchannel"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/signer"
+	"github.com/dexidp/dex/v2/storage"
+	"github.com/dexidp/dex/v2/storage/memory"
 )
 
 // TestTerminateSessionNotifiesRelyingParties: an operator ending a session leaves the

@@ -14,10 +14,10 @@ import (
 
 	jose "github.com/go-jose/go-jose/v4"
 
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/router"
-	"github.com/dexidp/dex/server/signer"
-	"github.com/dexidp/dex/server/templates"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/router"
+	"github.com/dexidp/dex/v2/server/signer"
+	"github.com/dexidp/dex/v2/server/templates"
 )
 
 // Handler serves the discovery document and the JWKS. Like every other domain

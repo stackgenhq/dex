@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/dexidp/dex/server/reqctx"
+	"github.com/dexidp/dex/v2/server/reqctx"
 )
 
 // The address stored on a session is an audit record, so it has to be the

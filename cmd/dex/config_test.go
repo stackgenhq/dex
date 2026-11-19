@@ -12,12 +12,12 @@ import (
 	"github.com/kylelemons/godebug/pretty"
 	"github.com/stretchr/testify/require"
 
-	"github.com/dexidp/dex/connector/mock"
-	"github.com/dexidp/dex/connector/oidc"
-	"github.com/dexidp/dex/server"
-	"github.com/dexidp/dex/server/signer"
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/sql"
+	"github.com/dexidp/dex/v2/connector/mock"
+	"github.com/dexidp/dex/v2/connector/oidc"
+	"github.com/dexidp/dex/v2/server"
+	"github.com/dexidp/dex/v2/server/signer"
+	"github.com/dexidp/dex/v2/storage"
+	"github.com/dexidp/dex/v2/storage/sql"
 )
 
 var _ = yaml.YAMLToJSON

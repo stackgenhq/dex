@@ -38,16 +38,16 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/dexidp/dex/api/v2"
-	"github.com/dexidp/dex/pkg/featureflags"
-	"github.com/dexidp/dex/server"
-	"github.com/dexidp/dex/server/apiserver"
-	"github.com/dexidp/dex/server/authflow"
-	"github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/server/mfa"
-	"github.com/dexidp/dex/server/session"
-	"github.com/dexidp/dex/server/signer"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/pkg/featureflags"
+	"github.com/dexidp/dex/v2/server"
+	"github.com/dexidp/dex/v2/server/apiserver"
+	"github.com/dexidp/dex/v2/server/authflow"
+	"github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/server/mfa"
+	"github.com/dexidp/dex/v2/server/session"
+	"github.com/dexidp/dex/v2/server/signer"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 type serveOptions struct {
