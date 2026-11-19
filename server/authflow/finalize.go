@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // finalizeLogin associates the user's identity with the current AuthRequest, then returns

@@ -9,7 +9,7 @@ $( shell mkdir -p bin )
 
 PROJ      = dex
 ORG_PATH  = github.com/dexidp
-REPO_PATH = $(ORG_PATH)/$(PROJ)
+REPO_PATH = $(ORG_PATH)/$(PROJ)/v2
 VERSION  ?= $(shell ./scripts/git-version)
 
 
@@ -47,11 +47,11 @@ bin/dex:
 
 bin/grpc-client:
 	@mkdir -p bin/
-	@cd examples/ && go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/examples/grpc-client
+	@cd examples/ && go install -v -ldflags $(LD_FLAGS) github.com/dexidp/dex/examples/grpc-client
 
 bin/example-app:
 	@mkdir -p bin/
-	@cd examples/ && go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/examples/example-app
+	@cd examples/ && go install -v -ldflags $(LD_FLAGS) github.com/dexidp/dex/examples/example-app
 
 
 ##@ Generate

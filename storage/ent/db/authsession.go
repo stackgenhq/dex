@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/dexidp/dex/storage/ent/db/authsession"
+	"github.com/dexidp/dex/v2/storage/ent/db/authsession"
 )
 
 // AuthSession is the model entity for the AuthSession schema.

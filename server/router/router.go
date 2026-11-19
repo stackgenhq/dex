@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
-	"github.com/dexidp/dex/server/reqctx"
+	"github.com/dexidp/dex/v2/server/reqctx"
 )
 
 // Mux registers HTTP routes. New returns the implementation used by the server

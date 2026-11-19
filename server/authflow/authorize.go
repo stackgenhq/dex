@@ -10,10 +10,10 @@ import (
 	"net/url"
 	"strings"
 
-	conns "github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/templates"
-	"github.com/dexidp/dex/storage"
+	conns "github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/templates"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // grantTypeFromAuthRequest determines the grant type from the authorization request parameters.

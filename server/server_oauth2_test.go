@@ -14,10 +14,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/dexidp/dex/server/signer"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/memory"
+	"github.com/dexidp/dex/v2/server/signer"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
+	"github.com/dexidp/dex/v2/storage/memory"
 )
 
 func TestSignerKeySet(t *testing.T) {

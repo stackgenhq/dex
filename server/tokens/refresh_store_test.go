@@ -8,10 +8,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/server/internal"
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/memory"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/server/internal"
+	"github.com/dexidp/dex/v2/storage"
+	"github.com/dexidp/dex/v2/storage/memory"
 )
 
 func newTestStore(t *testing.T) (*RefreshStore, storage.Storage) {

@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/dexidp/dex/connector"
+	"github.com/dexidp/dex/v2/connector"
 )
 
 // NewCallbackConnector returns a mock connector which requires no user interaction. It always returns

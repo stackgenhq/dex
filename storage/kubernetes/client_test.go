@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/dexidp/dex/storage/kubernetes/k8sapi"
+	"github.com/dexidp/dex/v2/storage/kubernetes/k8sapi"
 )
 
 // This test does not have an explicit error condition but is used

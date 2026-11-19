@@ -19,7 +19,7 @@ import (
 	"github.com/jcmturner/gokrb5/v8/service"
 	"github.com/jcmturner/gokrb5/v8/spnego"
 
-	"github.com/dexidp/dex/connector"
+	"github.com/dexidp/dex/v2/connector"
 )
 
 // bufferedResponse is a minimal http.ResponseWriter that buffers status,

@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/storage/memory"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/storage/memory"
 )
 
 func TestGetDeviceVerificationURI(t *testing.T) {

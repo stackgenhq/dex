@@ -17,12 +17,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/server/internal"
-	"github.com/dexidp/dex/server/session"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/server/internal"
+	"github.com/dexidp/dex/v2/server/session"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 func mockRefreshTokenTestStorage(t *testing.T, s storage.Storage, useObsolete bool) {

@@ -10,10 +10,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dexidp/dex/server/internal"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/reqctx"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/internal"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/reqctx"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // Config holds resolved session configuration.

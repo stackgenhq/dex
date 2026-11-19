@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/dexidp/dex/storage/ent/db/devicerequest"
-	"github.com/dexidp/dex/storage/ent/db/predicate"
+	"github.com/dexidp/dex/v2/storage/ent/db/devicerequest"
+	"github.com/dexidp/dex/v2/storage/ent/db/predicate"
 )
 
 // DeviceRequestDelete is the builder for deleting a DeviceRequest entity.

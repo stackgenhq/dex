@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 	xoauth2 "golang.org/x/oauth2"
 
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // TestHandleAuthCode checks that it is forbidden to use same code twice

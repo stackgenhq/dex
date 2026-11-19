@@ -3,8 +3,8 @@ package grants
 import (
 	"net/http"
 
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // verifyPKCE checks a code_verifier against a stored PKCE challenge (RFC 7636).

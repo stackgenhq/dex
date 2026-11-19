@@ -16,9 +16,9 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
 
-	"github.com/dexidp/dex/connector"
-	groups_pkg "github.com/dexidp/dex/pkg/groups"
-	"github.com/dexidp/dex/pkg/httpclient"
+	"github.com/dexidp/dex/v2/connector"
+	groups_pkg "github.com/dexidp/dex/v2/pkg/groups"
+	"github.com/dexidp/dex/v2/pkg/httpclient"
 )
 
 const (

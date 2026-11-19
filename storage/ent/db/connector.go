@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/dexidp/dex/storage/ent/db/connector"
+	"github.com/dexidp/dex/v2/storage/ent/db/connector"
 )
 
 // Connector is the model entity for the Connector schema.

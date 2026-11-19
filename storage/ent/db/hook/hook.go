@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/dexidp/dex/storage/ent/db"
+	"github.com/dexidp/dex/v2/storage/ent/db"
 )
 
 // The AuthCodeFunc type is an adapter to allow the use of ordinary

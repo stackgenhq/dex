@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 func TestDeviceTokenResponse(t *testing.T) {

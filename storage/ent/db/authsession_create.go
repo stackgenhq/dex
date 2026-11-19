@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/dexidp/dex/storage/ent/db/authsession"
+	"github.com/dexidp/dex/v2/storage/ent/db/authsession"
 )
 
 // AuthSessionCreate is the builder for creating a AuthSession entity.

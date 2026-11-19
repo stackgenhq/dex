@@ -4,7 +4,7 @@ import (
 	"maps"
 	"net/url"
 
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // Step names one hop of the interactive login flow. Every redirect between the

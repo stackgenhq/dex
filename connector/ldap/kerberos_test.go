@@ -14,7 +14,7 @@ import (
 	"github.com/jcmturner/goidentity/v6"
 	"github.com/jcmturner/gokrb5/v8/credentials"
 
-	"github.com/dexidp/dex/connector"
+	"github.com/dexidp/dex/v2/connector"
 )
 
 // fakeAuthenticate returns a krbState whose authenticate middleware immediately

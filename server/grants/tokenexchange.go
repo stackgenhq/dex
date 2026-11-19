@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // tokenExchange serves the RFC 8693 token-exchange grant: a subject token

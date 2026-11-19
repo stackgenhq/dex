@@ -14,13 +14,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/server/grants"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/router"
-	"github.com/dexidp/dex/server/templates"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/server/grants"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/router"
+	"github.com/dexidp/dex/v2/server/templates"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // DeviceCodeResponse is the device authorization response (RFC 8628 §3.2).

@@ -3,7 +3,7 @@ package connectors
 import (
 	"slices"
 
-	"github.com/dexidp/dex/server/oauth2"
+	"github.com/dexidp/dex/v2/server/oauth2"
 )
 
 // ConnectorGrantTypes is the set of grant types that can be restricted per connector.

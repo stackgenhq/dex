@@ -12,8 +12,8 @@ import (
 	"github.com/go-jose/go-jose/v4"
 	"github.com/stretchr/testify/require"
 
-	"github.com/dexidp/dex/server/discovery"
-	"github.com/dexidp/dex/server/signer"
+	"github.com/dexidp/dex/v2/server/discovery"
+	"github.com/dexidp/dex/v2/server/signer"
 )
 
 func TestHandleDiscovery(t *testing.T) {

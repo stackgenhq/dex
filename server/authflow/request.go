@@ -13,11 +13,11 @@ import (
 
 	"github.com/coreos/go-oidc/v3/oidc"
 
-	conns "github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/signer"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
+	conns "github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/signer"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // request.go parses and validates the OAuth2 /auth authorization request into a

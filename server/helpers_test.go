@@ -14,15 +14,15 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/require"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/pkg/featureflags"
-	"github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/session"
-	"github.com/dexidp/dex/server/signer"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/memory"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/pkg/featureflags"
+	"github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/session"
+	"github.com/dexidp/dex/v2/server/signer"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
+	"github.com/dexidp/dex/v2/storage/memory"
 )
 
 func newLogger(t *testing.T) *slog.Logger {

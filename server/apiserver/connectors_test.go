@@ -6,10 +6,10 @@ import (
 	"testing"
 
 	"github.com/dexidp/dex/api/v2"
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/connector/mock"
-	"github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/storage/memory"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/connector/mock"
+	"github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/storage/memory"
 )
 
 func TestConnectorCacheInvalidation(t *testing.T) {

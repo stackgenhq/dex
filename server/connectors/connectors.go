@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // Connector is a connector with resource version metadata.

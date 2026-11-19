@@ -7,9 +7,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/server/internal"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/server/internal"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // RefreshStore creates, rotates, and revokes refresh tokens, keeping the

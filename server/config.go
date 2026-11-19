@@ -15,15 +15,15 @@ import (
 	gosundheit "github.com/AppsFlyer/go-sundheit"
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/dexidp/dex/server/authflow"
-	"github.com/dexidp/dex/server/mfa"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/session"
-	"github.com/dexidp/dex/server/signer"
-	"github.com/dexidp/dex/server/templates"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/web"
+	"github.com/dexidp/dex/v2/server/authflow"
+	"github.com/dexidp/dex/v2/server/mfa"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/session"
+	"github.com/dexidp/dex/v2/server/signer"
+	"github.com/dexidp/dex/v2/server/templates"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
+	"github.com/dexidp/dex/v2/web"
 )
 
 // Config holds the server's configuration options.

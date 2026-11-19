@@ -12,10 +12,10 @@ import (
 
 	"golang.org/x/oauth2"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/pkg/groups"
-	"github.com/dexidp/dex/pkg/httpclient"
-	"github.com/dexidp/dex/storage/kubernetes/k8sapi"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/pkg/groups"
+	"github.com/dexidp/dex/v2/pkg/httpclient"
+	"github.com/dexidp/dex/v2/storage/kubernetes/k8sapi"
 )
 
 const (

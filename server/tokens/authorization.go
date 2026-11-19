@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // Authorization is the result of any grant: an authenticated subject and the

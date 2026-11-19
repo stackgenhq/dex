@@ -30,15 +30,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	xoauth2 "golang.org/x/oauth2"
 
-	"github.com/dexidp/dex/connector"
-	"github.com/dexidp/dex/connector/mock"
-	"github.com/dexidp/dex/server/connectors"
-	"github.com/dexidp/dex/server/device"
-	"github.com/dexidp/dex/server/oauth2"
-	"github.com/dexidp/dex/server/signer"
-	"github.com/dexidp/dex/server/tokens"
-	"github.com/dexidp/dex/storage"
-	"github.com/dexidp/dex/storage/memory"
+	"github.com/dexidp/dex/v2/connector"
+	"github.com/dexidp/dex/v2/connector/mock"
+	"github.com/dexidp/dex/v2/server/connectors"
+	"github.com/dexidp/dex/v2/server/device"
+	"github.com/dexidp/dex/v2/server/oauth2"
+	"github.com/dexidp/dex/v2/server/signer"
+	"github.com/dexidp/dex/v2/server/tokens"
+	"github.com/dexidp/dex/v2/storage"
+	"github.com/dexidp/dex/v2/storage/memory"
 )
 
 func mustLoad(s string) *rsa.PrivateKey {

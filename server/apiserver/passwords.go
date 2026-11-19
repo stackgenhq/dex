@@ -9,8 +9,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/dexidp/dex/api/v2"
-	"github.com/dexidp/dex/server/passwords"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/passwords"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 func (d dexAPI) CreatePassword(ctx context.Context, req *api.CreatePasswordReq) (*api.CreatePasswordResp, error) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"slices"
 
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // CrossClientTrusted reports whether clientID may request an audience scope for

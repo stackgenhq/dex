@@ -8,8 +8,8 @@ import (
 	"slices"
 
 	"github.com/dexidp/dex/api/v2"
-	"github.com/dexidp/dex/pkg/featureflags"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/pkg/featureflags"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // errIdentityUnchanged signals that an UpdateUserIdentity callback found nothing

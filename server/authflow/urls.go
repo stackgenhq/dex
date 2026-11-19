@@ -1,8 +1,8 @@
 package authflow
 
 import (
-	"github.com/dexidp/dex/server/internal"
-	"github.com/dexidp/dex/storage"
+	"github.com/dexidp/dex/v2/server/internal"
+	"github.com/dexidp/dex/v2/storage"
 )
 
 // buildContinueURL builds the HMAC-protected URL that returns to the /auth
